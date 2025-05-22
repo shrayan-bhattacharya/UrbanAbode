@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import Link from 'next/link';
-// import Modal from '../components/Modal';
+import Image from 'next/image';
 import Modal from '../../components/Modal';
 import EditPropertyForm from '../../components/EditPropertyForm';
 import DeleteConfirmation from '../../components/DeleteConfirmation';
@@ -57,11 +57,15 @@ export default function Properties({ properties: initialProperties }: { properti
         {properties.map((property) => (
           <div key={property.id} className="relative bg-white bg-opacity-90 p-4 rounded-lg shadow-lg">
             <Link href={`/properties/${property.id}`} className="block">
-              <img
-                src={property.image_url}
-                alt={property.title}
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              <div className="relative w-full h-48">
+                <Image
+                  src={property.image_url}
+                  alt={property.title}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  className="rounded-lg"
+                />
+              </div>
               {property.video_url && (
                 <iframe
                   src={getYouTubeEmbedUrl(property.video_url)}

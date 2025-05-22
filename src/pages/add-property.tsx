@@ -1,8 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabaseClient";
 
+interface FormState {
+  title: string;
+  description: string;
+  price: string;
+  location: string;
+  bhk: string;
+  area: string;
+  image_url: string;
+  rera_id: string;
+  video_url: string;
+}
+
 export default function AddProperty() {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     title: "",
     description: "",
     price: "",
@@ -18,7 +30,7 @@ export default function AddProperty() {
   const headingRef = useRef(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return; // Skip GSAP on server-side
+    if (typeof window === 'undefined') return;
 
     import('gsap').then(({ default: gsap }) => {
       gsap.fromTo(
@@ -40,7 +52,7 @@ export default function AddProperty() {
   };
 
   const handleSubmit = async () => {
-    const { data, error } = await supabase.from("properties").insert([{
+    const { error } = await supabase.from("properties").insert([{
       title: form.title || null,
       description: form.description || null,
       price: form.price ? parseFloat(form.price) : null,
@@ -63,14 +75,14 @@ export default function AddProperty() {
     <div className="min-h-screen flex items-center justify-center py-12">
       <div ref={formRef} className="glass-card w-full max-w-lg p-8">
         <h1 ref={headingRef} className="text-4xl font-bold text-navy mb-6 text-overlay">Add a Property</h1>
-        {["title", "description", "price", "location", "bhk", "area", "image_url", "rera_id", "video_url"].map((field) => (
+        {(["title", "description", "price", "location", "bhk", "area", "image_url", "rera_id", "video_url"] as (keyof FormState)[]).map((field) => (
           <div key={field} className="mb-4">
             <label className="block text-navy mb-2 capitalize">{field.replace('_', ' ')}</label>
             {field === "description" ? (
               <textarea
                 name={field}
                 className="w-full p-3 rounded-lg"
-                value={(form as any)[field]}
+                value={form[field]}
                 onChange={handleChange}
               />
             ) : (
@@ -78,7 +90,7 @@ export default function AddProperty() {
                 name={field}
                 type={field === "price" || field === "bhk" ? "number" : "text"}
                 className="w-full p-3 rounded-lg"
-                value={(form as any)[field]}
+                value={form[field]}
                 onChange={handleChange}
                 placeholder={field === "video_url" ? "https://www.youtube.com/watch?v=..." : ""}
               />

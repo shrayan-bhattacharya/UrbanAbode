@@ -2,12 +2,13 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useEffect, useRef } from 'react'
+import Link from 'next/link'
 
 export default function App({ Component, pageProps }: AppProps) {
   const headerRef = useRef(null)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return; // Skip GSAP on server-side
+    if (typeof window === 'undefined') return;
 
     import('gsap').then(({ default: gsap }) => {
       import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
@@ -42,9 +43,9 @@ export default function App({ Component, pageProps }: AppProps) {
         <header ref={headerRef} className="sticky top-0 z-50 bg-navy backdrop-blur-lg px-6 py-4 flex justify-between items-center">
           <h1 className="navbar-logo">UrbanAbode</h1>
           <nav className="nav-links">
-            <a href="/" className="text-gold hover:text-navy transition duration-300">Home</a>
-            <a href="/properties" className="text-gold hover:text-navy transition duration-300">Properties</a>
-            <a href="/add-property" className="text-gold hover:text-navy transition duration-300">Add Property</a>
+            <Link href="/" className="text-gold hover:text-navy transition duration-300">Home</Link>
+            <Link href="/properties" className="text-gold hover:text-navy transition duration-300">Properties</Link>
+            <Link href="/add-property" className="text-gold hover:text-navy transition duration-300">Add Property</Link>
           </nav>
         </header>
         <main>

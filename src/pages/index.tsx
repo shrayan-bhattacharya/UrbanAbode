@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { FaBuilding, FaEnvelope, FaPhone, FaInfoCircle, FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Property {
   id: number;
@@ -40,7 +41,7 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return; // Skip GSAP on server-side
+    if (typeof window === 'undefined') return;
 
     import('gsap').then(({ default: gsap }) => {
       import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
@@ -104,11 +105,15 @@ export default function HomePage() {
           {properties.map((property) => (
             <Link key={property.id} href={`/properties/${property.id}`} className="block">
               <div className="glass-card overflow-hidden">
-                <img
-                  src={property.image_url}
-                  alt={property.title}
-                  className="h-60 w-full object-cover"
-                />
+                <div className="relative w-full h-60">
+                  <Image
+                    src={property.image_url}
+                    alt={property.title}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="rounded-t-lg"
+                  />
+                </div>
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-navy mb-2">{property.title}</h3>
                   <p className="text-sm text-gray-600 mb-2 flex items-center">
