@@ -37,5 +37,12 @@ yarn-error.log*
 .vercel
 
 # typescript
+
+
 *.tsbuildinfo
 next-env.d.ts
+echo "node_modules/
+.env
+.vercel
+dist/
+build/" > .gitignore
