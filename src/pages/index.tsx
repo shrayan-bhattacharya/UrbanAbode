@@ -1,11 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FaBuilding, FaEnvelope, FaPhone, FaInfoCircle, FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa';
 import Link from 'next/link';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface Property {
   id: number;
@@ -44,31 +40,39 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    gsap.fromTo(
-      overlayRef.current,
-      { opacity: 0, scale: 0.9 },
-      { opacity: 1, scale: 1, duration: 1.5, ease: 'power3.out' }
-    );
+    if (typeof window === 'undefined') return; // Skip GSAP on server-side
 
-    gsap.fromTo(
-      headingRef.current,
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out', delay: 0.3 }
-    );
+    import('gsap').then(({ default: gsap }) => {
+      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+        gsap.registerPlugin(ScrollTrigger);
 
-    gsap.fromTo(
-      subheadingRef.current,
-      { opacity: 0, x: -50 },
-      { opacity: 1, x: 0, duration: 1.5, ease: 'power3.out', delay: 0.6 }
-    );
+        gsap.fromTo(
+          overlayRef.current,
+          { opacity: 0, scale: 0.9 },
+          { opacity: 1, scale: 1, duration: 1.5, ease: 'power3.out' }
+        );
 
-    gsap.to(heroRef.current, {
-      scrollTrigger: {
-        trigger: heroRef.current,
-        scrub: true,
-        start: 'top top',
-        end: 'bottom top',
-      },
+        gsap.fromTo(
+          headingRef.current,
+          { opacity: 0, y: 50 },
+          { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out', delay: 0.3 }
+        );
+
+        gsap.fromTo(
+          subheadingRef.current,
+          { opacity: 0, x: -50 },
+          { opacity: 1, x: 0, duration: 1.5, ease: 'power3.out', delay: 0.6 }
+        );
+
+        gsap.to(heroRef.current, {
+          scrollTrigger: {
+            trigger: heroRef.current,
+            scrub: true,
+            start: 'top top',
+            end: 'bottom top',
+          },
+        });
+      });
     });
   }, []);
 

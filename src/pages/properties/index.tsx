@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import Link from 'next/link';
+// import Modal from '../components/Modal';
 import Modal from '../../components/Modal';
 import EditPropertyForm from '../../components/EditPropertyForm';
 import DeleteConfirmation from '../../components/DeleteConfirmation';
@@ -16,7 +17,7 @@ interface Property {
 }
 
 export default function Properties({ properties: initialProperties }: { properties: Property[] }) {
-  const [properties, setProperties] = useState(initialProperties);
+  const [properties, setProperties] = useState(initialProperties || []);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -36,22 +37,16 @@ export default function Properties({ properties: initialProperties }: { properti
     setProperties(data || []);
   };
 
-  // Convert YouTube URL to embeddable format, handling both standard and Shorts URLs
   const getYouTubeEmbedUrl = (url: string | undefined): string | undefined => {
     if (!url) return undefined;
-
-    // Handle standard YouTube URLs (e.g., https://www.youtube.com/watch?v=VIDEO_ID)
     if (url.includes('watch?v=')) {
       const videoId = url.split('v=')[1]?.split('&')[0];
       return videoId ? `https://www.youtube.com/embed/${videoId}` : undefined;
     }
-
-    // Handle YouTube Shorts URLs (e.g., https://youtube.com/shorts/VIDEO_ID)
     if (url.includes('youtube.com/shorts/')) {
       const videoId = url.split('shorts/')[1]?.split('?')[0];
       return videoId ? `https://www.youtube.com/embed/${videoId}` : undefined;
     }
-
     return undefined;
   };
 
@@ -119,6 +114,15 @@ export default function Properties({ properties: initialProperties }: { properti
 }
 
 export async function getServerSideProps() {
-  const { data } = await supabase.from('properties').select('*');
-  return { props: { properties: data } };
+  try {
+    const { data, error } = await supabase.from('properties').select('*');
+    if (error) {
+      console.error("Error fetching properties in getServerSideProps:", error.message);
+      return { props: { properties: [] } };
+    }
+    return { props: { properties: data || [] } };
+  } catch (err) {
+    console.error("Unexpected error in getServerSideProps:", err);
+    return { props: { properties: [] } };
+  }
 }

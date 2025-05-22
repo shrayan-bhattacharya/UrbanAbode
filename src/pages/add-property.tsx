@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { gsap } from 'gsap';
 
 export default function AddProperty() {
   const [form, setForm] = useState({
@@ -12,24 +11,28 @@ export default function AddProperty() {
     area: "",
     image_url: "",
     rera_id: "",
-    video_url: "", // Step 1: Added video_url to the form state
+    video_url: "",
   });
 
   const formRef = useRef(null);
   const headingRef = useRef(null);
 
   useEffect(() => {
-    gsap.fromTo(
-      formRef.current,
-      { opacity: 0, scale: 0.9 },
-      { opacity: 1, scale: 1, duration: 1, ease: 'power3.out' }
-    );
+    if (typeof window === 'undefined') return; // Skip GSAP on server-side
 
-    gsap.fromTo(
-      headingRef.current,
-      { opacity: 0, x: -50 },
-      { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out' }
-    );
+    import('gsap').then(({ default: gsap }) => {
+      gsap.fromTo(
+        formRef.current,
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 1, ease: 'power3.out' }
+      );
+
+      gsap.fromTo(
+        headingRef.current,
+        { opacity: 0, x: -50 },
+        { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out' }
+      );
+    });
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -46,7 +49,7 @@ export default function AddProperty() {
       area: form.area || null,
       image_url: form.image_url || null,
       rera_id: form.rera_id || null,
-      video_url: form.video_url || null, // Step 3: Added video_url to the insert
+      video_url: form.video_url || null,
     }]);
 
     if (error) {
@@ -77,7 +80,7 @@ export default function AddProperty() {
                 className="w-full p-3 rounded-lg"
                 value={(form as any)[field]}
                 onChange={handleChange}
-                placeholder={field === "video_url" ? "https://www.youtube.com/watch?v=..." : ""} // Step 2: Added input for video_url with a helpful placeholder
+                placeholder={field === "video_url" ? "https://www.youtube.com/watch?v=..." : ""}
               />
             )}
           </div>

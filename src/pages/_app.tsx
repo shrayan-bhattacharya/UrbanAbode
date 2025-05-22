@@ -2,31 +2,35 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 
 export default function App({ Component, pageProps }: AppProps) {
   const headerRef = useRef(null)
 
   useEffect(() => {
-    gsap.fromTo(
-      headerRef.current,
-      { y: -100, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }
-    )
+    if (typeof window === 'undefined') return; // Skip GSAP on server-side
 
-    gsap.to(headerRef.current, {
-      backgroundColor: '#00032e',
-      backdropFilter: 'blur(12px)',
-      scrollTrigger: {
-        trigger: headerRef.current,
-        start: 'top top',
-        scrub: true,
-      },
-    })
-  }, [])
+    import('gsap').then(({ default: gsap }) => {
+      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.fromTo(
+          headerRef.current,
+          { y: -100, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }
+        );
+
+        gsap.to(headerRef.current, {
+          backgroundColor: '#00032e',
+          backdropFilter: 'blur(12px)',
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: 'top top',
+            scrub: true,
+          },
+        });
+      });
+    });
+  }, []);
 
   return (
     <>
