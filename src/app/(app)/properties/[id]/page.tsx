@@ -141,7 +141,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                 <Separator className="my-6 bg-accent/30" />
                 <div>
                   <h3 className="text-xl font-semibold text-accent mb-3">Property Description</h3>
-                  <p className="text-base leading-relaxed text-muted-foreground">{property.description}</p>
+                  <p className="text-base leading-relaxed text-muted-foreground max-w-prose">{property.description}</p>
                 </div>
               </>
             )}
