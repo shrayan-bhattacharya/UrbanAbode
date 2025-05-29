@@ -47,6 +47,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.adanirealty.com',
+        port: '',
+        pathname: '/**',
+      },
       // If you use other image providers, add them here
     ],
   },
