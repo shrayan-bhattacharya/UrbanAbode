@@ -1,16 +1,14 @@
+
 // Represents the structure of property data from Supabase & PRD requirements
 export type Property = {
-  id: string; // Ensure string, Supabase might return number
+  id: string; // Ensure string, Supabase might return number but we'll cast
   title: string;
   description: string;
   price: number;
   location: string; // From Supabase 'location' (e.g., city, state)
-  address?: string; // Full address (PRD requirement, may not be in current Supabase table)
-  type?: 'Apartment' | 'House' | 'Condo' | 'Townhouse' | 'Land'; // PRD requirement
   
-  bedrooms?: number; // From Supabase (e.g., 'bhk' or 'bedrooms')
-  bathrooms?: number; // From Supabase or PRD requirement
-  area?: number | string; // From Supabase (e.g. 'area'), PRD wants number. Can be string like "1500 sqft" or number.
+  bedrooms: number; // Mapped from Supabase 'bhk'
+  area: string | number; // From Supabase (e.g. 'area'), can be string like "1500 sqft" or number.
   
   imageUrl: string; // Mapped from Supabase 'image_url'
   videoUrl?: string; // Mapped from Supabase 'video_url'
@@ -19,15 +17,18 @@ export type Property = {
   createdAt?: string; // Supabase provides 'created_at'
   updatedAt?: string; // For tracking updates
   
-  agent?: { // PRD requirement - now optional from form
+  // Fields from PRD that might not be in simple Supabase table / basic forms
+  address?: string; 
+  type?: 'Apartment' | 'House' | 'Condo' | 'Townhouse' | 'Land';
+  bathrooms?: number; 
+  agent?: {
     name: string;
     phone: string;
     email: string;
   };
-  features?: string[]; // PRD requirement - now optional from form
+  features?: string[];
 
-  // Keep original Supabase field names if needed for direct mapping access
-  // These are optional if you prefer to only use the mapped names above
+  // Keep original Supabase field names if needed for direct mapping access, ensure they are optional
   image_url?: string; 
   video_url?: string;
   created_at?: string;

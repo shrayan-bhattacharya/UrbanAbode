@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -24,56 +25,44 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Property } from '@/lib/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+// Simplified schema based on add-property-form and new property list/detail pages
 const propertyEditSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters long.'),
   description: z.string().min(20, 'Description must be at least 20 characters long.'),
   price: z.coerce.number().positive('Price must be a positive number.'),
   location: z.string().min(3, 'Location is required.'),
-  address: z.string().min(10, 'Full address is required.'),
-  type: z.enum(['Apartment', 'House', 'Condo', 'Townhouse', 'Land']),
-  bedrooms: z.coerce.number().int().min(0, 'Bedrooms cannot be negative.'),
-  bathrooms: z.coerce.number().min(0.5, 'Bathrooms must be at least 0.5.').step(0.5),
-  area: z.coerce.number().positive('Area must be a positive number.'),
+  bedrooms: z.coerce.number().int().min(0, 'Bedrooms (BHK) cannot be negative.'),
+  area: z.string().min(1, 'Area is required (e.g., 1200 sqft or 120).'), // Accepting string for flexibility
   imageUrl: z.string().url('Must be a valid URL for the image.'),
   videoUrl: z.string().url('Must be a valid URL for the video.').optional().or(z.literal('')),
-  agentName: z.string().min(2, "Agent name is required."),
-  agentEmail: z.string().email("Invalid agent email."),
-  agentPhone: z.string().min(7, "Agent phone is required."),
-  features: z.string().optional().transform(val => val ? val.split(',').map(s => s.trim()).filter(Boolean) : []),
+  rera_id: z.string().optional(),
 });
 
 type PropertyEditFormValues = z.infer<typeof propertyEditSchema>;
 
 interface EditPropertyModalProps {
-  property: Property;
+  property: Property; // Full property for initial values
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Property) => Promise<void>; // Expects full property for optimistic updates
+  onSubmit: (data: PropertyEditFormValues) => Promise<void>; // Submit only form values
 }
 
 export function EditPropertyModal({ property, isOpen, onClose, onSubmit }: EditPropertyModalProps) {
   const form = useForm<PropertyEditFormValues>({
     resolver: zodResolver(propertyEditSchema),
     defaultValues: {
-      title: property.title,
-      description: property.description,
-      price: property.price,
-      location: property.location,
-      address: property.address,
-      type: property.type,
-      bedrooms: property.bedrooms,
-      bathrooms: property.bathrooms,
-      area: property.area,
-      imageUrl: property.imageUrl,
+      title: property.title || '',
+      description: property.description || '',
+      price: property.price || 0,
+      location: property.location || '',
+      bedrooms: property.bedrooms || 0,
+      area: String(property.area || ''),
+      imageUrl: property.imageUrl || '',
       videoUrl: property.videoUrl || '',
-      agentName: property.agent.name,
-      agentEmail: property.agent.email,
-      agentPhone: property.agent.phone,
-      features: property.features?.join(', ') || '',
+      rera_id: property.rera_id || '',
     },
   });
 
@@ -84,43 +73,18 @@ export function EditPropertyModal({ property, isOpen, onClose, onSubmit }: EditP
         description: property.description,
         price: property.price,
         location: property.location,
-        address: property.address,
-        type: property.type,
         bedrooms: property.bedrooms,
-        bathrooms: property.bathrooms,
-        area: property.area,
+        area: String(property.area),
         imageUrl: property.imageUrl,
         videoUrl: property.videoUrl || '',
-        agentName: property.agent.name,
-        agentEmail: property.agent.email,
-        agentPhone: property.agent.phone,
-        features: property.features?.join(', ') || '',
+        rera_id: property.rera_id || '',
       });
     }
-  }, [property, form]);
+  }, [property, form, isOpen]); // re-run if isOpen changes to reset form on new modal open
 
   async function handleFormSubmit(data: PropertyEditFormValues) {
-    const updatedPropertyData: Property = {
-      ...property, // Spread existing property to keep id, createdAt etc.
-      title: data.title,
-      description: data.description,
-      price: data.price,
-      location: data.location,
-      address: data.address,
-      type: data.type,
-      bedrooms: data.bedrooms,
-      bathrooms: data.bathrooms,
-      area: data.area,
-      imageUrl: data.imageUrl,
-      videoUrl: data.videoUrl || undefined,
-      agent: {
-        name: data.agentName,
-        email: data.agentEmail,
-        phone: data.agentPhone,
-      },
-      features: data.features,
-    };
-    await onSubmit(updatedPropertyData);
+    await onSubmit(data); // Pass only form data
+    onClose(); // Close modal after submit attempt
   }
 
   return (
@@ -167,7 +131,7 @@ export function EditPropertyModal({ property, isOpen, onClose, onSubmit }: EditP
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price (USD)</FormLabel>
+                    <FormLabel>Price (INR)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} className="bg-input placeholder:text-muted-foreground"/>
                     </FormControl>
@@ -180,7 +144,7 @@ export function EditPropertyModal({ property, isOpen, onClose, onSubmit }: EditP
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location (City, State)</FormLabel>
+                    <FormLabel>Location (e.g. City, Area)</FormLabel>
                     <FormControl>
                       <Input {...field} className="bg-input placeholder:text-muted-foreground"/>
                     </FormControl>
@@ -189,54 +153,14 @@ export function EditPropertyModal({ property, isOpen, onClose, onSubmit }: EditP
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Address</FormLabel>
-                  <FormControl>
-                    <Input {...field} className="bg-input placeholder:text-muted-foreground"/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="bg-input"><SelectValue /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-popover text-popover-foreground">
-                        {['Apartment', 'House', 'Condo', 'Townhouse', 'Land'].map(type => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField control={form.control} name="bedrooms" render={({ field }) => ( <FormItem><FormLabel>Beds</FormLabel><FormControl><Input type="number" {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="bathrooms" render={({ field }) => ( <FormItem><FormLabel>Baths</FormLabel><FormControl><Input type="number" step="0.5" {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="area" render={({ field }) => ( <FormItem><FormLabel>Area (sqft)</FormLabel><FormControl><Input type="number" {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField control={form.control} name="bedrooms" render={({ field }) => ( <FormItem><FormLabel>Bedrooms (BHK)</FormLabel><FormControl><Input type="number" {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="area" render={({ field }) => ( <FormItem><FormLabel>Area (e.g. 1200 sqft)</FormLabel><FormControl><Input {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
             </div>
              <FormField control={form.control} name="imageUrl" render={({ field }) => ( <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
-             <FormField control={form.control} name="videoUrl" render={({ field }) => ( <FormItem><FormLabel>Video URL (Opt.)</FormLabel><FormControl><Input {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
-             <FormField control={form.control} name="features" render={({ field }) => ( <FormItem><FormLabel>Features (comma-sep)</FormLabel><FormControl><Input {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
+             <FormField control={form.control} name="videoUrl" render={({ field }) => ( <FormItem><FormLabel>Video URL (Optional, YouTube)</FormLabel><FormControl><Input {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
+             <FormField control={form.control} name="rera_id" render={({ field }) => ( <FormItem><FormLabel>RERA ID (Optional)</FormLabel><FormControl><Input {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
             
-            <h4 className="text-lg font-semibold text-accent pt-2 border-t border-accent/20">Agent Info</h4>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField control={form.control} name="agentName" render={({ field }) => ( <FormItem><FormLabel>Agent Name</FormLabel><FormControl><Input {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="agentEmail" render={({ field }) => ( <FormItem><FormLabel>Agent Email</FormLabel><FormControl><Input type="email" {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="agentPhone" render={({ field }) => ( <FormItem><FormLabel>Agent Phone</FormLabel><FormControl><Input {...field} className="bg-input placeholder:text-muted-foreground"/></FormControl><FormMessage /></FormItem>)} />
-             </div>
              <DialogFooter className="pt-6">
               <DialogClose asChild>
                 <Button type="button" variant="outline" className="border-muted-foreground text-muted-foreground hover:border-accent hover:text-accent">Cancel</Button>

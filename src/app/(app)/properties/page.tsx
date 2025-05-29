@@ -1,33 +1,14 @@
-'use client'; // For modal interactions
+
+'use client';
 
 import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import type { Property } from '@/lib/types';
 import { PropertyCard } from '@/components/property/property-card';
-import { getProperties, type Property } from '@/lib/mock-data'; // Assuming direct import for client-side updates
 import { Skeleton } from '@/components/ui/skeleton';
 import { EditPropertyModal } from '@/components/property/edit-property-modal';
 import { DeletePropertyModal } from '@/components/property/delete-property-modal';
 import { useToast } from '@/hooks/use-toast';
-
-// Helper functions for mock data manipulation (would be API calls in a real app)
-// These are simplified and assume mockProperties is accessible and mutable here or via imported functions.
-// For a real app, you'd re-fetch or use a state management library after mutations.
-
-// Mock deleteProperty function for client-side simulation
-async function clientDeleteProperty(id: string): Promise<boolean> {
-  // In a real app, this would be an API call.
-  // For now, we'll filter out the property from the local state.
-  console.log(`Simulating delete for property ID: ${id}`);
-  return true; // Simulate successful deletion
-}
-
-// Mock updateProperty function for client-side simulation
-async function clientUpdateProperty(id: string, updates: Partial<Property>): Promise<Property | null> {
-  console.log(`Simulating update for property ID: ${id} with`, updates);
-  // For now, we'll just return a modified property or null.
-  const dummyUpdatedProperty = { ...updates, id } as Property;
-  return dummyUpdatedProperty; // Simulate successful update
-}
-
 
 export default function PropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -36,33 +17,70 @@ export default function PropertiesPage() {
   const [deletingPropertyId, setDeletingPropertyId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      const fetchedProperties = await getProperties();
-      setProperties(fetchedProperties);
-      setIsLoading(false);
+  const fetchProperties = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching properties:', error.message);
+      toast({ title: "Error", description: "Failed to fetch properties.", variant: "destructive" });
+      setProperties([]);
+    } else if (data) {
+      const mappedData = data.map(p => ({
+        id: String(p.id),
+        title: p.title,
+        description: p.description,
+        price: p.price,
+        location: p.location,
+        bedrooms: p.bhk || p.bedrooms || 0,
+        area: p.area ? String(p.area) : "N/A",
+        imageUrl: p.image_url || "https://placehold.co/600x400.png?text=Property",
+        videoUrl: p.video_url,
+        rera_id: p.rera_id,
+        createdAt: p.created_at,
+      })) as Property[];
+      setProperties(mappedData);
     }
-    fetchData();
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProperties();
   }, []);
 
   const handleEdit = (property: Property) => {
     setEditingProperty(property);
   };
 
-  const handleDelete = (propertyId: string) => {
+  const handleDeleteRequest = (propertyId: string) => {
     setDeletingPropertyId(propertyId);
   };
 
-  const onEditSubmit = async (updatedPropertyData: Property) => {
+  const onEditSubmit = async (updatedPropertyData: Partial<Property>) => { // Accept partial for updates
     if (!editingProperty) return;
-    
-    const updated = await clientUpdateProperty(editingProperty.id, updatedPropertyData);
-    if (updated) {
-      setProperties(prev => prev.map(p => p.id === updated.id ? { ...p, ...updated } : p)); // Optimistic update
-      toast({ title: "Success", description: "Property updated successfully." });
+
+    // Prepare data for Supabase, mapping back if necessary (e.g. bedrooms to bhk)
+    const dataToUpdate: any = { ...updatedPropertyData };
+    if (updatedPropertyData.bedrooms !== undefined) {
+      dataToUpdate.bhk = updatedPropertyData.bedrooms;
+      delete dataToUpdate.bedrooms; // Remove if 'bedrooms' is not a direct Supabase column
+    }
+    if (updatedPropertyData.imageUrl) dataToUpdate.image_url = updatedPropertyData.imageUrl;
+
+
+    const { error } = await supabase
+      .from('properties')
+      .update(dataToUpdate)
+      .eq('id', editingProperty.id);
+
+    if (error) {
+      toast({ title: "Error", description: `Failed to update property: ${error.message}`, variant: "destructive" });
     } else {
-      toast({ title: "Error", description: "Failed to update property.", variant: "destructive" });
+      toast({ title: "Success", description: "Property updated successfully." });
+      await fetchProperties(); // Re-fetch to get the latest data
     }
     setEditingProperty(null);
   };
@@ -70,12 +88,16 @@ export default function PropertiesPage() {
   const onDeleteConfirm = async () => {
     if (!deletingPropertyId) return;
     
-    const success = await clientDeleteProperty(deletingPropertyId);
-    if (success) {
-      setProperties(prev => prev.filter(p => p.id !== deletingPropertyId)); // Optimistic update
-      toast({ title: "Success", description: "Property deleted successfully." });
+    const { error } = await supabase
+      .from('properties')
+      .delete()
+      .eq('id', deletingPropertyId);
+
+    if (error) {
+      toast({ title: "Error", description: `Failed to delete property: ${error.message}`, variant: "destructive" });
     } else {
-      toast({ title: "Error", description: "Failed to delete property.", variant: "destructive" });
+      toast({ title: "Success", description: "Property deleted successfully." });
+      await fetchProperties(); // Re-fetch
     }
     setDeletingPropertyId(null);
   };
@@ -84,7 +106,7 @@ export default function PropertiesPage() {
     return (
       <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <h1 className="mb-8 text-center text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl">
-          All Properties
+          Loading Properties...
         </h1>
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -118,13 +140,13 @@ export default function PropertiesPage() {
               key={property.id} 
               property={property} 
               onEdit={handleEdit}
-              onDelete={handleDelete}
+              onDelete={handleDeleteRequest} // Use the new handler name
               showActions={true}
             />
           ))}
         </div>
       ) : (
-        <p className="text-center text-xl text-muted-foreground">No properties found. Check back soon!</p>
+        <p className="text-center text-xl text-muted-foreground">No properties found. Check back soon or add a new listing!</p>
       )}
 
       {editingProperty && (
@@ -132,7 +154,7 @@ export default function PropertiesPage() {
           property={editingProperty}
           isOpen={!!editingProperty}
           onClose={() => setEditingProperty(null)}
-          onSubmit={onEditSubmit}
+          onSubmit={onEditSubmit} // onSubmit now directly takes partial data for update
         />
       )}
 
