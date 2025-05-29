@@ -15,15 +15,16 @@ export type Property = {
   imageUrl: string; // Mapped from Supabase 'image_url'
   videoUrl?: string; // Mapped from Supabase 'video_url'
   
-  rera_id?: string; // From Supabase 'rera_id'
+  rera_id?: string; // From Supabase 'rera_id' or user input
   createdAt?: string; // Supabase provides 'created_at'
+  updatedAt?: string; // For tracking updates
   
-  agent?: { // PRD requirement
+  agent?: { // PRD requirement - now optional from form
     name: string;
     phone: string;
     email: string;
   };
-  features?: string[]; // PRD requirement
+  features?: string[]; // PRD requirement - now optional from form
 
   // Keep original Supabase field names if needed for direct mapping access
   // These are optional if you prefer to only use the mapped names above

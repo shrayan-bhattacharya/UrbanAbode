@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
 import type { Property } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, MapPin } from 'lucide-react'; // Using MapPin instead of FaBuilding for consistency
+import { ArrowRight, MapPin } from 'lucide-react';
 
 // GSAP will be dynamically imported
 // import { gsap } from 'gsap';
@@ -22,7 +22,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       const { data, error } = await supabase
-        .from('properties') // Assuming your table is named 'properties'
+        .from('properties') 
         .select('*')
         .order('created_at', { ascending: false })
         .limit(6);
@@ -30,15 +30,20 @@ export default function HomePage() {
       if (error) {
         console.error('Error fetching properties:', error.message);
       } else if (data) {
-        // Map Supabase data to our Property type
         const fetchedProperties = data.map((p: any) => ({
-          ...p,
-          id: String(p.id), // Ensure id is string
-          imageUrl: p.image_url, // Map image_url to imageUrl
-          videoUrl: p.video_url, // Map video_url to videoUrl
+          id: String(p.id), 
+          title: p.title,
+          description: p.description,
+          price: p.price,
+          location: p.location,
+          imageUrl: p.image_url, 
+          videoUrl: p.video_url, 
           createdAt: p.created_at,
-          bedrooms: p.bhk || p.bedrooms, // Handle 'bhk' or 'bedrooms'
-          // area: typeof p.area === 'string' ? parseFloat(p.area) : p.area, // Example: Convert area string to number
+          bedrooms: p.bhk || p.bedrooms, // Handle 'bhk' or 'bedrooms' from Supabase
+          area: p.area, 
+          rera_id: p.rera_id,
+          // Agent and features might not be directly on this simplified fetch
+          // They would be fetched on the detail page or if explicitly selected
         })) as Property[];
         setProperties(fetchedProperties);
       }
@@ -76,40 +81,26 @@ export default function HomePage() {
           { opacity: 1, x: 0, duration: 1.5, ease: 'power3.out', delay: 0.6 }
         );
       }
+      
+      // Animate property cards on scroll
+      gsap.utils.toArray('.property-card-item').forEach((card: any, index: number) => {
+        gsap.fromTo(card, 
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+            delay: index * 0.1, // Stagger animation
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 85%', 
+              toggleActions: 'play none none none', 
+            }
+          }
+        );
+      });
 
-      // Example of scroll-triggered animation for property cards if desired
-      // gsap.utils.toArray('.property-card-item').forEach((card: any) => {
-      //   gsap.fromTo(card, 
-      //     { opacity: 0, y: 50 },
-      //     {
-      //       opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-      //       scrollTrigger: {
-      //         trigger: card,
-      //         start: 'top 85%', // Start animation when card is 85% from top of viewport
-      //         toggleActions: 'play none none none', // Play animation once
-      //       }
-      //     }
-      //   );
-      // });
-
-      // Note: The ScrollTrigger for heroRef.current seems to be missing a .to() target for an animation.
-      // If it's for parallax or other effects, ensure the .to() part is correctly defined.
-      // For example, to create a parallax effect on the video:
-      // if (heroRef.current && heroRef.current.querySelector('.video-background')) {
-      //   gsap.to(heroRef.current.querySelector('.video-background'), {
-      //     yPercent: 30, // Move video 30% down as user scrolls
-      //     ease: "none",
-      //     scrollTrigger: {
-      //       trigger: heroRef.current,
-      //       scrub: true,
-      //       start: 'top top',
-      //       end: 'bottom top',
-      //     },
-      //   });
-      // }
 
     }).catch(error => console.error("Failed to load GSAP modules", error));
-  }, []);
+  }, [properties]); // Re-run if properties change to apply to new cards
 
   return (
     <div className="bg-background text-foreground">
@@ -178,7 +169,7 @@ export default function HomePage() {
                         <MapPin className="mr-2 h-4 w-4 text-accent" /> {property.location}
                       </div>
                       <p className="font-bold text-lg text-accent mt-auto">
-                        {property.price ? `₹ ${property.price.toLocaleString()}` : 'Price on request'}
+                        {property.price ? `₹ ${Number(property.price).toLocaleString()}` : 'Price on request'}
                       </p>
                     </div>
                   </div>
@@ -186,7 +177,20 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-400">Loading properties or no featured properties available...</p>
+             <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
+              {Array.from({length: 3}).map((_, index) => (
+                <div key={index} className="glassmorphism-deep rounded-lg p-4">
+                  <div className="animate-pulse">
+                    <div className="bg-muted/30 h-56 w-full rounded-t-lg"></div>
+                    <div className="p-6 space-y-3">
+                      <div className="h-6 bg-muted/30 rounded w-3/4"></div>
+                      <div className="h-4 bg-muted/30 rounded w-1/2"></div>
+                      <div className="h-8 bg-muted/30 rounded w-1/3 mt-auto"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
           <div className="mt-12 text-center">
             <Button size="lg" variant="outline" asChild className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
