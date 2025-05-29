@@ -59,6 +59,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'newprojects.99acres.com',
+        port: '',
+        pathname: '/**',
+      },
       // If you use other image providers, add them here
     ],
   },
