@@ -9,41 +9,41 @@ body {
 @layer base {
   :root {
     --background: 0 0% 98%; /* Almost white */
-    --foreground: 233 90% 12%; /* Dark blue for text */
+    --foreground: 238 100% 9%; /* Deep Navy for general text on light background */
 
     --muted: 220 20% 92%; /* Light grey */
     --muted-foreground: 220 10% 45%; /* Darker grey for muted text */
 
     --popover: 0 0% 100%; /* White */
-    --popover-foreground: 233 90% 12%;
+    --popover-foreground: 238 100% 9%; /* Deep Navy text on white popover */
 
     --card: 0 0% 100%; /* White */
-    --card-foreground: 233 90% 12%;
+    --card-foreground: 238 100% 9%; /* Deep Navy text on white card */
 
-    --border: 40 47% 80%; /* Lighter gold for borders */
-    --input: 220 20% 94%; /* Light grey for input bg */
+    --border: 40 47% 65%; /* More prominent Muted Gold for borders */
+    --input: 40 47% 65%; /* Muted Gold for input borders */
 
-    --primary: 40 47% 53%; /* Muted gold as primary bg for light theme */
-    --primary-foreground: 0 0% 98%; /* White text on gold */
+    --primary: 40 47% 53%; /* Muted gold as primary (MAJORITY) */
+    --primary-foreground: 238 100% 9%; /* Deep Navy text on gold primary (avoids white) */
 
-    --secondary: 220 30% 90%; /* Light grey for secondary elements */
-    --secondary-foreground: 233 90% 12%; /* Dark blue text on light grey */
+    --secondary: 40 47% 95%; /* Very light gold for secondary backgrounds */
+    --secondary-foreground: 238 100% 9%; /* Deep Navy text on light gold secondary */
 
-    --accent: 238 100% 9%; /* Deep navy as accent for light theme */
-    --accent-foreground: 0 0% 98%; /* White text on navy accent */
+    --accent: 238 100% 9%; /* Deep navy as accent (MINOR) */
+    --accent-foreground: 40 50% 95%; /* Light Gold text on navy accent (avoids white) */
 
     --destructive: 0 63% 40%; /* Standard destructive red for light theme */
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 98%; /* White text on destructive, standard for contrast */
 
     --ring: 40 47% 53%; /* Muted gold for rings */
     --radius: 0.5rem;
 
     /* Sidebar variables for light theme */
-    --sidebar-background: 0 0% 96%; /* Off-white */
-    --sidebar-foreground: 233 90% 15%; /* Dark text */
-    --sidebar-border: 0 0% 88%; /* Light grey border */
-    --sidebar-accent: 238 100% 9%; /* Deep navy */
-    --sidebar-accent-foreground: 0 0% 98%; /* White */
+    --sidebar-background: 40 47% 97%; /* Very light gold */
+    --sidebar-foreground: 238 100% 9%; /* Deep Navy text */
+    --sidebar-border: 40 47% 80%; /* Lighter gold border */
+    --sidebar-accent: 40 47% 53%; /* Muted gold for sidebar accent */
+    --sidebar-accent-foreground: 238 100% 9%; /* Deep Navy text on gold sidebar accent */
     --sidebar-ring: 40 47% 53%; /* Muted gold */
   }
 
@@ -61,16 +61,16 @@ body {
     --card-foreground: 233 15% 85%;
 
     --border: 40 47% 43%; /* Darker gold for borders */
-    --input: 235 30% 25%;
+    --input: 40 47% 43%; /* Darker gold for input borders */
 
-    --primary: 238 100% 9%; /* #00032E - Deep navy */
-    --primary-foreground: 40 50% 95%; /* Light gold for text on primary */
+    --primary: 238 100% 9%; /* #00032E - Deep navy (MAJORITY) */
+    --primary-foreground: 40 50% 95%; /* Light gold for text on primary (MINOR) */
 
     --secondary: 235 40% 20%; /* A slightly lighter navy for secondary elements */
-    --secondary-foreground: 40 50% 95%;
+    --secondary-foreground: 40 50% 95%; /* Light gold text on secondary */
 
-    --accent: 40 47% 53%; /* #B89357 - Muted gold */
-    --accent-foreground: 238 100% 9%; /* Dark navy for text on accent */
+    --accent: 40 47% 53%; /* #B89357 - Muted gold (MINOR) */
+    --accent-foreground: 238 100% 9%; /* Dark navy for text on accent (MAJORITY) */
 
     --destructive: 0 63% 31%; /* Standard destructive red */
     --destructive-foreground: 0 0% 98%;
