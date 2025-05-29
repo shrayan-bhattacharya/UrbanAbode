@@ -7,6 +7,8 @@ import { supabase } from '@/lib/supabaseClient';
 import type { Property } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, MapPin } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 // GSAP will be dynamically imported
 // import { gsap } from 'gsap';
@@ -14,6 +16,7 @@ import { ArrowRight, MapPin } from 'lucide-react';
 
 export default function HomePage() {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const heroRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -21,6 +24,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('properties') 
         .select('*')
@@ -29,6 +33,7 @@ export default function HomePage() {
 
       if (error) {
         console.error('Error fetching properties:', error.message);
+        setProperties([]); // Clear properties on error
       } else if (data) {
         const fetchedProperties = data.map((p: any) => ({
           id: String(p.id), 
@@ -39,14 +44,13 @@ export default function HomePage() {
           imageUrl: p.image_url, 
           videoUrl: p.video_url, 
           createdAt: p.created_at,
-          bedrooms: p.bhk || p.bedrooms, // Handle 'bhk' or 'bedrooms' from Supabase
+          bedrooms: p.bhk || p.bedrooms, 
           area: p.area, 
           rera_id: p.rera_id,
-          // Agent and features might not be directly on this simplified fetch
-          // They would be fetched on the detail page or if explicitly selected
         })) as Property[];
         setProperties(fetchedProperties);
       }
+      setIsLoading(false);
     };
     fetchData();
   }, []);
@@ -119,10 +123,10 @@ export default function HomePage() {
           Your browser does not support the video tag.
         </video>
         <div ref={overlayRef} className="relative z-10 p-6 sm:p-8 glassmorphism-deep max-w-3xl mx-auto">
-          <h1 ref={headingRef} className="text-4xl font-extrabold tracking-tight text-primary-foreground sm:text-5xl md:text-6xl drop-shadow-md">
-            Discover Your <span className="text-accent">Dream Home</span>
+          <h1 ref={headingRef} className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl drop-shadow-md"> {/* Changed to text-white for better contrast on video */}
+            Discover Your <span className="text-accent dark:text-accent">Dream Home</span> {/* Ensure accent is visible in light mode */}
           </h1>
-          <p ref={subheadingRef} className="mt-6 max-w-xl mx-auto text-lg text-gray-300 sm:text-xl md:text-2xl drop-shadow-sm">
+          <p ref={subheadingRef} className="mt-6 max-w-xl mx-auto text-lg text-gray-200 sm:text-xl md:text-2xl drop-shadow-sm"> {/* Changed to text-gray-200 for better contrast */}
             Direct from Developers. Zero Brokerage. 100% Transparency.
           </p>
            <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
@@ -139,15 +143,28 @@ export default function HomePage() {
       </section>
 
       {/* Featured Properties Section */}
-      <section className="py-16 sm:py-24 bg-primary">
+      <section className="py-16 sm:py-24 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl">Featured Properties</h2>
-            <p className="mt-4 text-lg text-gray-300">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Featured Properties</h2>
+            <p className="mt-4 text-lg text-primary-foreground/80"> {/* Adjusted opacity for subtlety */}
               Handpicked selection of our finest listings.
             </p>
           </div>
-          {properties.length > 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
+              {Array.from({length: 3}).map((_, index) => (
+                <div key={index} className="glassmorphism-deep rounded-lg p-4">
+                    <Skeleton className="h-56 w-full rounded-t-lg bg-muted/30" />
+                    <div className="p-6 space-y-3">
+                      <Skeleton className="h-6 w-3/4 bg-muted/30 rounded" />
+                      <Skeleton className="h-4 w-1/2 bg-muted/30 rounded" />
+                      <Skeleton className="h-8 w-1/3 mt-auto bg-muted/30 rounded" />
+                    </div>
+                </div>
+              ))}
+            </div>
+          ) : properties.length > 0 ? (
             <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
               {properties.map((property: Property) => (
                 <Link key={property.id} href={`/properties/${property.id}`} className="block group property-card-item">
@@ -177,20 +194,9 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-             <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
-              {Array.from({length: 3}).map((_, index) => (
-                <div key={index} className="glassmorphism-deep rounded-lg p-4">
-                  <div className="animate-pulse">
-                    <div className="bg-muted/30 h-56 w-full rounded-t-lg"></div>
-                    <div className="p-6 space-y-3">
-                      <div className="h-6 bg-muted/30 rounded w-3/4"></div>
-                      <div className="h-4 bg-muted/30 rounded w-1/2"></div>
-                      <div className="h-8 bg-muted/30 rounded w-1/3 mt-auto"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+             <div className="text-center py-10">
+                <p className="text-xl text-primary-foreground/70">No featured properties available at the moment.</p>
+             </div>
           )}
           <div className="mt-12 text-center">
             <Button size="lg" variant="outline" asChild className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">

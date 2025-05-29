@@ -8,6 +8,46 @@ body {
 
 @layer base {
   :root {
+    --background: 0 0% 98%; /* Almost white */
+    --foreground: 233 90% 12%; /* Dark blue for text */
+
+    --muted: 220 20% 92%; /* Light grey */
+    --muted-foreground: 220 10% 45%; /* Darker grey for muted text */
+
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 233 90% 12%;
+
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 233 90% 12%;
+
+    --border: 40 47% 80%; /* Lighter gold for borders */
+    --input: 220 20% 94%; /* Light grey for input bg */
+
+    --primary: 40 47% 53%; /* Muted gold as primary bg for light theme */
+    --primary-foreground: 0 0% 98%; /* White text on gold */
+
+    --secondary: 220 30% 90%; /* Light grey for secondary elements */
+    --secondary-foreground: 233 90% 12%; /* Dark blue text on light grey */
+
+    --accent: 238 100% 9%; /* Deep navy as accent for light theme */
+    --accent-foreground: 0 0% 98%; /* White text on navy accent */
+
+    --destructive: 0 63% 40%; /* Standard destructive red for light theme */
+    --destructive-foreground: 0 0% 98%;
+
+    --ring: 40 47% 53%; /* Muted gold for rings */
+    --radius: 0.5rem;
+
+    /* Sidebar variables for light theme */
+    --sidebar-background: 0 0% 96%; /* Off-white */
+    --sidebar-foreground: 233 90% 15%; /* Dark text */
+    --sidebar-border: 0 0% 88%; /* Light grey border */
+    --sidebar-accent: 238 100% 9%; /* Deep navy */
+    --sidebar-accent-foreground: 0 0% 98%; /* White */
+    --sidebar-ring: 40 47% 53%; /* Muted gold */
+  }
+
+  .dark {
     --background: 233 90% 12%; /* #03063A - Very dark desaturated blue */
     --foreground: 233 15% 85%; /* Light, slightly desaturated blue/grey for text */
 
@@ -36,34 +76,14 @@ body {
     --destructive-foreground: 0 0% 98%;
 
     --ring: 40 47% 53%; /* Accent color for rings */
-    --radius: 0.5rem;
 
-    /* Custom variables for glassmorphism if needed directly */
-    --glass-bg: hsla(var(--card) / 0.5); /* Example: card color with opacity */
-    --glass-border: hsla(var(--accent) / 0.3);
-  }
-
-  .dark {
-    /* Dark theme is default, but if explicit .dark class is used, mirror variables */
-    --background: 233 90% 12%;
-    --foreground: 233 15% 85%;
-    --muted: 235 30% 25%;
-    --muted-foreground: 233 15% 65%;
-    --popover: 233 80% 15%;
-    --popover-foreground: 233 15% 85%;
-    --card: 235 50% 18%;
-    --card-foreground: 233 15% 85%;
-    --border: 40 47% 43%;
-    --input: 235 30% 25%;
-    --primary: 238 100% 9%;
-    --primary-foreground: 40 50% 95%;
-    --secondary: 235 40% 20%;
-    --secondary-foreground: 40 50% 95%;
-    --accent: 40 47% 53%;
-    --accent-foreground: 238 100% 9%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-    --ring: 40 47% 53%;
+    /* Sidebar variables for dark theme */
+    --sidebar-background: 233 85% 14%; /* Slightly lighter than main bg */
+    --sidebar-foreground: 233 15% 80%;
+    --sidebar-border: 40 47% 38%; /* Darker gold, slightly less intense */
+    --sidebar-accent: 40 47% 53%; /* Muted gold */
+    --sidebar-accent-foreground: 238 100% 9%; /* Dark navy */
+    --sidebar-ring: 40 47% 53%; /* Muted gold */
   }
 }
 
@@ -90,12 +110,14 @@ body {
 
 @layer utilities {
   .glassmorphism {
+    /* Uses card and accent which are theme-aware */
     @apply bg-card/70 backdrop-blur-md border border-accent/30 rounded-lg shadow-xl;
   }
   .glassmorphism-deep {
-     background-color: rgba(3, 6, 58, 0.6); /* Corresponds to --background with opacity */
+    /* Updated to use theme variables for background and border */
+    background-color: hsl(var(--card) / 0.6); /* Use card color with opacity */
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(184, 147, 87, 0.2); /* Corresponds to --accent with opacity */
+    border: 1px solid hsl(var(--accent) / 0.2); /* Use accent color with opacity */
     @apply rounded-xl shadow-lg;
   }
 }
