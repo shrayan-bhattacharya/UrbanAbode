@@ -35,6 +35,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'housing-images.n7net.in',
+        port: '',
+        pathname: '/**',
+      },
       // If you use other image providers, add them here
     ],
   },
