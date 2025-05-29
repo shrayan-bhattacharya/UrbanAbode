@@ -1,52 +1,64 @@
 import Link from 'next/link';
-import { Facebook, Instagram, Linkedin, Youtube, Mail, Phone } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Youtube, Mail, Phone, Info } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="border-t border-accent/30 bg-primary text-primary-foreground">
+    <footer className="bg-primary text-accent border-t border-accent/30">
       <div className="container mx-auto grid grid-cols-1 gap-8 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
         <div>
-          <h3 className="text-lg font-semibold text-accent">About UrbanAbode</h3>
-          <p className="mt-4 text-sm text-gray-300">
-            UrbanAbode is your premier destination for finding modern and luxurious properties. We are dedicated to helping you discover your dream home.
+          <h3 className="text-xl font-semibold mb-4 flex items-center text-accent">
+            <Info className="mr-2 h-6 w-6" /> About UrbanAbode
+          </h3>
+          <p className="text-primary-foreground/90 text-sm">
+            UrbanAbode connects you directly with developers, offering zero brokerage and 100% transparency in finding your dream home.
           </p>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-accent">Connect With Us</h3>
-          <div className="mt-4 flex space-x-4">
-            <Link href="#" aria-label="Facebook" className="text-gray-300 hover:text-accent">
-              <Facebook className="h-6 w-6" />
-            </Link>
-            <Link href="#" aria-label="Instagram" className="text-gray-300 hover:text-accent">
-              <Instagram className="h-6 w-6" />
-            </Link>
-            <Link href="#" aria-label="LinkedIn" className="text-gray-300 hover:text-accent">
-              <Linkedin className="h-6 w-6" />
-            </Link>
-            <Link href="#" aria-label="YouTube" className="text-gray-300 hover:text-accent">
-              <Youtube className="h-6 w-6" />
-            </Link>
-          </div>
+          <h3 className="text-xl font-semibold mb-4 flex items-center text-accent">
+             Follow Us
+          </h3>
+          <ul className="space-y-3">
+            <li>
+              <a href="https://www.facebook.com/people/UrbanAbode/61575812930422/" target="_blank" rel="noopener noreferrer" className="text-primary-foreground hover:text-accent transition duration-300 flex items-center text-sm">
+                <Facebook className="mr-2 h-5 w-5" /> Facebook
+              </a>
+            </li>
+            <li>
+              <a href="https://www.instagram.com/urban_abodee/" target="_blank" rel="noopener noreferrer" className="text-primary-foreground hover:text-accent transition duration-300 flex items-center text-sm">
+                <Instagram className="mr-2 h-5 w-5" /> Instagram
+              </a>
+            </li>
+            <li>
+              <a href="https://www.linkedin.com/company/urbanabode/" target="_blank" rel="noopener noreferrer" className="text-primary-foreground hover:text-accent transition duration-300 flex items-center text-sm">
+                <Linkedin className="mr-2 h-5 w-5" /> LinkedIn
+              </a>
+            </li>
+            <li>
+              <a href="https://www.youtube.com/@UrbanAbode-z4d" target="_blank" rel="noopener noreferrer" className="text-primary-foreground hover:text-accent transition duration-300 flex items-center text-sm">
+                <Youtube className="mr-2 h-5 w-5" /> YouTube
+              </a>
+            </li>
+          </ul>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-accent">Contact Us</h3>
-          <ul className="mt-4 space-y-2 text-sm">
-            <li className="flex items-center gap-2 text-gray-300">
-              <Mail className="h-5 w-5 text-accent" />
-              <span>info@urbanabode.com</span>
+          <h3 className="text-xl font-semibold mb-4 flex items-center text-accent">
+            <Mail className="mr-2 h-6 w-6" /> Contact Us
+          </h3>
+          <ul className="space-y-3 text-sm">
+            <li className="flex items-center text-primary-foreground/90">
+              <Mail className="mr-2 h-5 w-5 text-accent" /> urban.abodeee@gmail.com
             </li>
-            <li className="flex items-center gap-2 text-gray-300">
-              <Phone className="h-5 w-5 text-accent" />
-              <span>(555) 123-4567</span>
+            <li className="flex items-center text-primary-foreground/90">
+              <Phone className="mr-2 h-5 w-5 text-accent" /> +91 9330413315
             </li>
-            <li className="text-gray-300">
+             <li className="text-primary-foreground/90">
               123 Urban Way, Suite 100, Metropolis, USA
             </li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-accent/20 bg-primary py-6 text-center">
-        <p className="text-sm text-gray-400">
+      <div className="border-t border-accent/20 py-6 text-center">
+        <p className="text-sm text-muted-foreground">
           &copy; {new Date().getFullYear()} UrbanAbode. All rights reserved.
         </p>
       </div>
