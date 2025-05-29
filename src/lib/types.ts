@@ -4,7 +4,7 @@ export type Property = {
   id: string; // Ensure string, Supabase might return number but we'll cast
   title: string;
   description: string;
-  price: number;
+  price: string; // Changed from number to string
   location: string; // From Supabase 'location' (e.g., city, state)
   
   bedrooms: number; // Mapped from Supabase 'bhk'

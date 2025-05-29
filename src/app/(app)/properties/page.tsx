@@ -33,10 +33,10 @@ export default function PropertiesPage() {
         id: String(p.id),
         title: p.title,
         description: p.description,
-        price: p.price,
+        price: String(p.price || "Price on request"), // Ensure price is string
         location: p.location,
         bedrooms: p.bhk || p.bedrooms || 0,
-        area: p.area ? String(p.area) : "N/A",
+        area: String(p.area || "N/A"), // Ensure area is string
         imageUrl: p.image_url || "https://placehold.co/600x400.png?text=Property",
         videoUrl: p.video_url,
         rera_id: p.rera_id,
@@ -59,17 +59,17 @@ export default function PropertiesPage() {
     setDeletingPropertyId(propertyId);
   };
 
-  const onEditSubmit = async (updatedPropertyData: Partial<Property>) => { // Accept partial for updates
+  const onEditSubmit = async (updatedPropertyData: Partial<Property>) => { 
     if (!editingProperty) return;
 
-    // Prepare data for Supabase, mapping back if necessary (e.g. bedrooms to bhk)
     const dataToUpdate: any = { ...updatedPropertyData };
     if (updatedPropertyData.bedrooms !== undefined) {
       dataToUpdate.bhk = updatedPropertyData.bedrooms;
-      delete dataToUpdate.bedrooms; // Remove if 'bedrooms' is not a direct Supabase column
+      delete dataToUpdate.bedrooms; 
     }
     if (updatedPropertyData.imageUrl) dataToUpdate.image_url = updatedPropertyData.imageUrl;
-
+    if (updatedPropertyData.videoUrl) dataToUpdate.video_url = updatedPropertyData.videoUrl;
+    // Price and Area will be strings directly from updatedPropertyData
 
     const { error } = await supabase
       .from('properties')
@@ -80,7 +80,7 @@ export default function PropertiesPage() {
       toast({ title: "Error", description: `Failed to update property: ${error.message}`, variant: "destructive" });
     } else {
       toast({ title: "Success", description: "Property updated successfully." });
-      await fetchProperties(); // Re-fetch to get the latest data
+      await fetchProperties(); 
     }
     setEditingProperty(null);
   };
@@ -97,7 +97,7 @@ export default function PropertiesPage() {
       toast({ title: "Error", description: `Failed to delete property: ${error.message}`, variant: "destructive" });
     } else {
       toast({ title: "Success", description: "Property deleted successfully." });
-      await fetchProperties(); // Re-fetch
+      await fetchProperties(); 
     }
     setDeletingPropertyId(null);
   };
@@ -140,7 +140,7 @@ export default function PropertiesPage() {
               key={property.id} 
               property={property} 
               onEdit={handleEdit}
-              onDelete={handleDeleteRequest} // Use the new handler name
+              onDelete={handleDeleteRequest} 
               showActions={true}
             />
           ))}
@@ -154,7 +154,7 @@ export default function PropertiesPage() {
           property={editingProperty}
           isOpen={!!editingProperty}
           onClose={() => setEditingProperty(null)}
-          onSubmit={onEditSubmit} // onSubmit now directly takes partial data for update
+          onSubmit={onEditSubmit} 
         />
       )}
 

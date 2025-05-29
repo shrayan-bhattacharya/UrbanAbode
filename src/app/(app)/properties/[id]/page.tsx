@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import type { Property } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, BedDouble, Box, Tag, Award, Video, ImageOff } from 'lucide-react';
+import { ArrowLeft, MapPin, BedDouble, Box, Award, Video, ImageOff } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getYouTubeEmbedUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -28,11 +28,11 @@ async function getPropertyByIdFromSupabase(id: string): Promise<Property | null>
     id: String(data.id),
     title: data.title,
     description: data.description,
-    price: data.price, // Keep as number or null
+    price: String(data.price || "Price on request"), // Ensure price is a string
     location: data.location,
     bedrooms: data.bhk || data.bedrooms || 0,
     area: data.area ? String(data.area) : "N/A",
-    imageUrl: data.image_url || "", // Ensure empty string if null
+    imageUrl: data.image_url || "", 
     videoUrl: data.video_url,
     rera_id: data.rera_id,
     createdAt: data.created_at,
@@ -48,9 +48,8 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
   }
 
   const youtubeEmbedUrl = getYouTubeEmbedUrl(property.videoUrl);
-  const displayPrice = typeof property.price === 'number' 
-    ? `₹${property.price.toLocaleString()}` 
-    : 'Price on request';
+  // Price is now a string, display directly or use a fallback.
+  const displayPrice = property.price || 'Price on request';
 
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8 text-primary-foreground">
@@ -72,7 +71,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                 alt={property.title}
                 fill
                 className="object-cover rounded-md"
-                data-ai-hint="property main image"
+                data-ai-hint="property main"
                 priority
               />
             </div>
@@ -110,7 +109,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               <MapPin className="mr-2 h-5 w-5 text-accent" />
               <span>{property.location}</span>
             </div>
-            <p className="mt-4 text-4xl font-bold text-primary-foreground">{displayPrice}</p>
+            <p className="mt-4 text-4xl font-bold text-primary-foreground">{displayPrice}</p> {/* Display price string directly */}
             
             <Separator className="my-6 bg-accent/30" />
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -26,10 +27,10 @@ import { useRouter } from 'next/navigation';
 const propertySchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters long.'),
   description: z.string().min(20, 'Description must be at least 20 characters long.'),
-  price: z.coerce.number().positive('Price must be a positive number.'),
+  price: z.string().min(1, 'Price is required (e.g., "50,00,000", "3600/sq.ft.", or "Price on Request").'),
   location: z.string().min(3, 'Location is required.'),
   bedrooms: z.coerce.number().int().min(0, 'Bedrooms (BHK) cannot be negative.'), // Representing 'bhk'
-  area: z.coerce.number().positive('Area must be a positive number.'),
+  area: z.string().min(1, 'Area is required (e.g., "1800 sqft").'), // Changed to string to allow units
   imageUrl: z.string().url('Must be a valid URL for the image.'),
   rera_id: z.string().optional(),
   videoUrl: z.string().url('Must be a valid URL for the video.').optional().or(z.literal('')),
@@ -47,10 +48,10 @@ export function AddPropertyForm() {
     defaultValues: {
       title: '',
       description: '',
-      price: 0,
+      price: '', // Default to empty string
       location: '',
       bedrooms: 0,
-      area: 0,
+      area: '', // Default to empty string
       imageUrl: '',
       rera_id: '',
       videoUrl: '',
@@ -77,21 +78,20 @@ export function AddPropertyForm() {
       const propertyDataToSave = {
         title: data.title,
         description: data.description,
-        price: data.price,
+        price: data.price, // Price is now a string
         location: data.location,
-        bhk: data.bedrooms, // Map bedrooms to bhk for Supabase
-        area: data.area.toString(), // Supabase might expect string for area, or ensure target column is numeric
-        image_url: data.imageUrl, // Map imageUrl to image_url
+        bhk: data.bedrooms, 
+        area: data.area, // Area is now a string
+        image_url: data.imageUrl,
         rera_id: data.rera_id || null,
         video_url: data.videoUrl || null,
-        // created_at will be set by Supabase
       };
 
       const { data: newPropertyData, error } = await supabase
         .from('properties')
         .insert([propertyDataToSave])
         .select()
-        .single(); // Assuming you want the inserted row back
+        .single(); 
 
       if (error) {
         throw error;
@@ -135,10 +135,11 @@ export function AddPropertyForm() {
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary-foreground">Price (e.g., INR)</FormLabel>
+                <FormLabel className="text-primary-foreground">Price</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g., 7500000" {...field} className="bg-input text-foreground placeholder:text-muted-foreground" />
+                  <Input type="text" placeholder="e.g., 50,00,000 or 3600/sq.ft." {...field} className="bg-input text-foreground placeholder:text-muted-foreground" />
                 </FormControl>
+                 <FormDescription className="text-muted-foreground">Enter amount, unit (e.g., /sq.ft.), or "Price on Request".</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -175,7 +176,7 @@ export function AddPropertyForm() {
           />
            <FormField
             control={form.control}
-            name="bedrooms" // This is 'bhk' effectively
+            name="bedrooms" 
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-primary-foreground">Bedrooms (BHK)</FormLabel>
@@ -194,10 +195,11 @@ export function AddPropertyForm() {
             name="area"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-primary-foreground">Area (sqft or sqm)</FormLabel>
+                <FormLabel className="text-primary-foreground">Area</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g., 1800" {...field} className="bg-input text-foreground placeholder:text-muted-foreground" />
+                  <Input type="text" placeholder="e.g., 1800 sqft" {...field} className="bg-input text-foreground placeholder:text-muted-foreground" />
                 </FormControl>
+                <FormDescription className="text-muted-foreground">Enter area with units (e.g. sqft, sqm).</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

@@ -14,9 +14,8 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, onEdit, onDelete, showActions = false }: PropertyCardProps) {
-  const displayPrice = typeof property.price === 'number'
-    ? `₹${property.price.toLocaleString()}`
-    : 'Price on request';
+  // Price is now a string, display directly
+  const displayPrice = property.price || 'Price on request';
 
   return (
     <Card className="glassmorphism-deep overflow-hidden flex flex-col h-full data-[ai-hint=property-card-animation]">
@@ -28,7 +27,7 @@ export function PropertyCard({ property, onEdit, onDelete, showActions = false }
             width={400}
             height={250}
             className="w-full h-56 object-cover transition-transform duration-300 hover:scale-105"
-            data-ai-hint="property exterior"
+            data-ai-hint="property building"
           />
         </Link>
       </CardHeader>
@@ -43,7 +42,7 @@ export function PropertyCard({ property, onEdit, onDelete, showActions = false }
           <span>{property.location}</span>
         </div>
         <p className="mt-2 text-2xl font-bold text-accent">
-          {displayPrice}
+          {displayPrice} 
         </p>
         <div className="mt-3 grid grid-cols-3 gap-2 text-sm text-muted-foreground">
           <div className="flex items-center">
@@ -53,7 +52,7 @@ export function PropertyCard({ property, onEdit, onDelete, showActions = false }
             <Bath className="mr-1 h-4 w-4 text-accent" /> {property.bathrooms ?? 'N/A'} Baths
           </div>
           <div className="flex items-center">
-            <Sigma className="mr-1 h-4 w-4 text-accent" /> {property.area ?? 'N/A'} sqft
+            <Sigma className="mr-1 h-4 w-4 text-accent" /> {property.area ?? 'N/A'}
           </div>
         </div>
       </CardContent>
